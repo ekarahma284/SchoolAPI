@@ -1,4 +1,4 @@
-import beritaRepository from "../Repository/beritaRepository.js";
+import beritaRepository from "../repository/beritaRepository.js";
 import userService from "./userService.js";
 
 const beritaService = {
@@ -23,7 +23,17 @@ const beritaService = {
   },
 
   async update(id, data) {
-    await beritaRepository.update(id, data);
+    try {
+      const cekBerita = await beritaRepository.getById(id);
+      if (!cekBerita) {
+        throw new Error("Berita tidak ditemukan")
+      }
+
+      const response = await beritaRepository.update(id, data);
+      return response
+    } catch (error) {
+      throw new Error(`Error : ${error}`)
+    }
   },
 
   async delete(id) {
