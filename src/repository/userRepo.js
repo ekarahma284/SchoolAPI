@@ -11,6 +11,11 @@ const userRepo = {
     return result.rows[0];
   },
 
+    async findByUsername(username) {
+    const result = await dsn.query("SELECT * FROM users WHERE username=$1", [username]);
+    return result.rows[0];
+  },
+  
   async create(data) {
     await dsn.query("INSERT INTO users (username, password) VALUES ($1, $2)", [
       data.username,

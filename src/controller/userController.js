@@ -1,4 +1,5 @@
 import userRepo from "../repository/userRepo.js";
+import userService from "../service/userService.js";
 
 const userController = {
   async getAll(req, res) {
@@ -37,12 +38,17 @@ const userController = {
     }
   },
 
-  // LOGIN
+  // LOGIN pakai service
   async login(req, res) {
     try {
       const { username, password } = req.body;
-      const result = await userRepo.login(username, password);
-      res.json(result);
+      const result = await userService.login(username, password);
+
+      // simpan id user ke session / sementara kirim balik ke client
+      res.json({
+        message: result.message,
+        user: result.user, // id dan username dikembalikan
+      });
     } catch (err) {
       res.status(401).json({ error: err.message });
     }
