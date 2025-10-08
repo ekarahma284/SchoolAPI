@@ -1,7 +1,9 @@
 import beritaRepository from "../repository/beritaRepository.js";
+import beritaService from "../service/beritaService.js";
+
 
 const beritaController = {
- async getAll(req, res) {
+  async getAll(req, res) {
     try {
       const data = await beritaService.getAll();
       res.json(data);
@@ -12,10 +14,10 @@ const beritaController = {
 
   async getById(req, res) {
     try {
-      const data = await beritaService.getById(req.params.id);
-      res.json(data);
+      const berita = await beritaService.getById(req.params.id);
+      res.json(berita);
     } catch (error) {
-      res.status(404).json({ message: error.message });
+      res.status(500).json({ message: error.message });
     }
   },
 
@@ -30,10 +32,17 @@ const beritaController = {
 
   async update(req, res) {
     try {
-      const result = await beritaRepository.update(req.params.id, req.body);
+      const id = req.params.id;
+      const result = await beritaRepository.update(id, req.body);
+
+      // Jika hasil update kosong (data tidak ditemukan)
+      if (!result) {
+        return res.status(404).json({ message: `Berita dengan ID ${id} tidak ditemukan` });
+      }
+
       res.json({ message: "Berita berhasil diperbarui", berita: result });
     } catch (err) {
-      res.status(400).json({ message: err.message });
+      res.status(500).json({ message: `Terjadi kesalahan: ${err.message}` });
     }
   },
 

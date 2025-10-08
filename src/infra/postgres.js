@@ -4,7 +4,7 @@ const dsn = new Pool({
     host: 'localhost',
     user: 'postgres',
     password: 'postgres',
-    database: 'db_webschool',
+    database: 'adminsekolah',
     port: '5432'
 })
 
