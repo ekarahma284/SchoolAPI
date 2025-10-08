@@ -1,12 +1,14 @@
 import cors from "cors";
 import express from "express"
 import dsn from "./src/infra/postgres.js";
+import router from "./src/domain/router.js";
 
 const APP = express();
 const APP_PORT = 5000;
 
 APP.use(cors());
 APP.use(express.json());
+APP.use("/api", router);
 
 // Cek koneksi
 APP.get('/', async (req, res) => {
@@ -25,3 +27,6 @@ APP.get('/', async (req, res) => {
   APP.listen(APP_PORT, () => {
     console.log("Server berhasil berjalan")
   })
+
+
+  
