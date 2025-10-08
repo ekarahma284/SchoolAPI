@@ -2,8 +2,12 @@ import galeriService from "../service/galeriService.js";
 
 const galeriController = {
   async getAll(req, res) {
-    const data = await galeriService.getAll();
-    res.json(data);
+    try {
+      const data = await galeriService.getAll();
+      res.json(data);
+    } catch (err) {
+      res.status(500).json({ message: err.message });
+    }
   },
 
   async getById(req, res) {
@@ -40,7 +44,7 @@ const galeriController = {
     } catch (err) {
       res.status(400).json({ message: err.message });
     }
-  }
+  },
 };
 
 export default galeriController;

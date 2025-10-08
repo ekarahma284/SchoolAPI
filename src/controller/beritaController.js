@@ -1,9 +1,13 @@
-import beritaService from "../service/beritaService.js";
+import beritaRepository from "../repository/beritaRepository.js";
 
 const beritaController = {
-  async getAll(req, res) {
-    const data = await beritaService.getAll();
-    res.json(data);
+ async getAll(req, res) {
+    try {
+      const data = await beritaService.getAll();
+      res.json(data);
+    } catch (error) {
+      res.status(500).json({ message: error.message });
+    }
   },
 
   async getById(req, res) {
@@ -17,21 +21,29 @@ const beritaController = {
 
   async create(req, res) {
     try {
-      await beritaService.create(req.body);
-      res.json({ message: "Berita berhasil ditambahkan" });
-    } catch (error) {
-      res.status(400).json({ message: error.message });
+      const result = await beritaRepository.create(req.body);
+      res.status(201).json({ message: "Berita berhasil ditambahkan", berita: result });
+    } catch (err) {
+      res.status(400).json({ message: err.message });
     }
   },
 
   async update(req, res) {
-    await beritaService.update(req.params.id, req.body);
-    res.json({ message: "Berita berhasil diperbarui" });
+    try {
+      const result = await beritaRepository.update(req.params.id, req.body);
+      res.json({ message: "Berita berhasil diperbarui", berita: result });
+    } catch (err) {
+      res.status(400).json({ message: err.message });
+    }
   },
 
   async delete(req, res) {
-    await beritaService.delete(req.params.id);
-    res.json({ message: "Berita berhasil dihapus" });
+    try {
+      const result = await beritaRepository.delete(req.params.id);
+      res.json({ message: "Berita berhasil dihapus", result });
+    } catch (err) {
+      res.status(400).json({ message: err.message });
+    }
   },
 };
 

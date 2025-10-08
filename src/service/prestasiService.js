@@ -1,4 +1,4 @@
-import prestasiRepository from "../repository/prestasiRepository.js";
+import prestasiRepository from "../Repository/prestasiRepository.js";
 import userService from "./userService.js";
 
 const prestasiService = {
@@ -13,23 +13,24 @@ const prestasiService = {
   },
 
   async create(data) {
-    // minimal validation
-    if (!data.nama || !data.judul) throw new Error("nama dan judul wajib diisi");
+    if (!data.nama || !data.judul)
+      throw new Error("nama dan judul wajib diisi");
 
-    const user = await userService.getLoggedUser();
+    const user = userService.getLoggedUser();
     data.author_id = user.id;
 
     return await prestasiRepository.create(data);
   },
 
   async update(id, data) {
-    if (!data.judul && !data.nama && !data.juara) throw new Error("Tidak ada data untuk diupdate");
+    if (!data.judul && !data.nama && !data.juara)
+      throw new Error("Tidak ada data untuk diupdate");
     return await prestasiRepository.update(id, data);
   },
 
   async delete(id) {
     return await prestasiRepository.delete(id);
-  }
+  },
 };
 
 export default prestasiService;

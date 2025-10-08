@@ -5,7 +5,7 @@ const userController = {
     try {
       const { username, password } = req.body;
       const user = await userService.register(username, password);
-      res.json({ message: "Registrasi berhasil", user });
+      res.status(201).json({ message: "Registrasi berhasil", user });
     } catch (err) {
       res.status(400).json({ error: err.message });
     }
@@ -30,6 +30,11 @@ const userController = {
     }
   },
 
+  logout(req, res) {
+    global.loggedUser = null;
+    res.json({ message: "Berhasil logout" });
+  },
+
   async me(req, res) {
     try {
       const user = userService.getCurrentUser();
@@ -41,25 +46,41 @@ const userController = {
   },
 
   async getAll(req, res) {
-    const data = await userService.getAll();
-    res.json(data);
+    try {
+      const data = await userService.getAll();
+      res.json(data);
+    } catch (err) {
+      res.status(500).json({ error: err.message });
+    }
   },
 
   async getById(req, res) {
-    const data = await userService.getById(req.params.id);
-    res.json(data);
+    try {
+      const data = await userService.getById(req.params.id);
+      res.json(data);
+    } catch (err) {
+      res.status(404).json({ error: err.message });
+    }
   },
 
   async update(req, res) {
-    const { username, password } = req.body;
-    const data = await userService.update(req.params.id, username, password);
-    res.json(data);
+    try {
+      const { username, password } = req.body;
+      const data = await userService.update(req.params.id, username, password);
+      res.json(data);
+    } catch (err) {
+      res.status(400).json({ error: err.message });
+    }
   },
 
   async delete(req, res) {
-    await userService.delete(req.params.id);
-    res.json({ message: "User berhasil dihapus" });
-  }
+    try {
+      await userService.delete(req.params.id);
+      res.json({ message: "User berhasil dihapus" });
+    } catch (err) {
+      res.status(400).json({ error: err.message });
+    }
+  },
 };
 
 export default userController;

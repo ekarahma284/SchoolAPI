@@ -1,4 +1,4 @@
-import userRepository from "../repository/userRepository.js";
+import userRepository from "../Repository/userRepository.js";
 
 let currentUser = null; // user yang sedang login
 
@@ -51,7 +51,7 @@ const userService = {
   },
 
   async delete(id) {
-    return await userRepository.delete(id);
+    return await userRepo.delete(id);
   }
 };
 

@@ -2,8 +2,12 @@ import prestasiService from "../service/prestasiService.js";
 
 const prestasiController = {
   async getAll(req, res) {
-    const data = await prestasiService.getAll();
-    res.json(data);
+    try {
+      const data = await prestasiService.getAll();
+      res.json(data);
+    } catch (err) {
+      res.status(500).json({ message: err.message });
+    }
   },
 
   async getById(req, res) {
@@ -40,7 +44,7 @@ const prestasiController = {
     } catch (err) {
       res.status(400).json({ message: err.message });
     }
-  }
+  },
 };
 
 export default prestasiController;

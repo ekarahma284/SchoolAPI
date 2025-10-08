@@ -13,23 +13,24 @@ const galeriService = {
   },
 
   async create(data) {
-    if (!data.foto_url || !data.judul) throw new Error("foto_url dan judul wajib diisi");
+    if (!data.foto_url || !data.judul)
+      throw new Error("foto_url dan judul wajib diisi");
 
-    const user = await userService.getLoggedUser();
+    const user = userService.getLoggedUser();
     data.author_id = user.id;
 
     return await galeriRepository.create(data);
   },
 
   async update(id, data) {
-    // optional: bisa cek apakah user yang update sama dengan author, tapi untuk sekarang skip
-    if (!data.foto_url && !data.judul) throw new Error("Tidak ada data untuk diupdate");
+    if (!data.foto_url && !data.judul)
+      throw new Error("Tidak ada data untuk diupdate");
     return await galeriRepository.update(id, data);
   },
 
   async delete(id) {
     return await galeriRepository.delete(id);
-  }
+  },
 };
 
 export default galeriService;

@@ -2,8 +2,12 @@ import pengumumanService from "../service/pengumumanService.js";
 
 const pengumumanController = {
   async getAll(req, res) {
-    const data = await pengumumanService.getAll();
-    res.json(data);
+    try {
+      const data = await pengumumanService.getAll();
+      res.json(data);
+    } catch (err) {
+      res.status(500).json({ message: err.message });
+    }
   },
 
   async getById(req, res) {
@@ -40,7 +44,7 @@ const pengumumanController = {
     } catch (err) {
       res.status(400).json({ message: err.message });
     }
-  }
+  },
 };
 
 export default pengumumanController;
