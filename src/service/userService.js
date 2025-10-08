@@ -1,4 +1,4 @@
-import userRepository from "../Repository/userRepository.js";
+import userRepository from "../repository/userRepository.js";
 
 let currentUser = null; // user yang sedang login
 

@@ -1,4 +1,4 @@
-import prestasiRepository from "../Repository/prestasiRepository.js";
+import prestasiRepository from "../repository/prestasiRepository.js";
 import userService from "./userService.js";
 
 const prestasiService = {
