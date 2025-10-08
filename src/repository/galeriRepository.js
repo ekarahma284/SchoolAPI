@@ -2,46 +2,46 @@ import dsn from "../infra/postgres.js";
 
 const galeriRepository = {
   async getAll() {
-    const result = await dsn.query(`
+    const result = await dsn`
       SELECT g.*, u.username
       FROM galeri g
       JOIN users u ON g.author_id = u.id
       ORDER BY g.id DESC
-    `);
-    return result.rows;
+    `;
+    return result;
   },
 
   async getById(id) {
-    const result = await dsn.query(`
+    const result = await dsn`
       SELECT g.*, u.username
       FROM galeri g
       JOIN users u ON g.author_id = u.id
-      WHERE g.id = $1
-    `, [id]);
-    return result.rows[0];
+      WHERE g.id = ${id}
+    `;
+    return result[0] || null;
   },
 
   async create({ foto_url, judul, author_id }) {
-    const result = await dsn.query(`
+    const result = await dsn`
       INSERT INTO galeri (foto_url, judul, author_id)
-      VALUES ($1, $2, $3)
+      VALUES (${foto_url}, ${judul}, ${author_id})
       RETURNING *
-    `, [foto_url, judul, author_id]);
-    return result.rows[0];
+    `;
+    return result[0];
   },
 
   async update(id, { foto_url, judul }) {
-    const result = await dsn.query(`
+    const result = await dsn`
       UPDATE galeri
-      SET foto_url = $1, judul = $2
-      WHERE id = $3
+      SET foto_url = ${foto_url}, judul = ${judul}
+      WHERE id = ${id}
       RETURNING *
-    `, [foto_url, judul, id]);
-    return result.rows[0];
+    `;
+    return result[0];
   },
 
   async delete(id) {
-    await dsn.query(`DELETE FROM galeri WHERE id = $1`, [id]);
+    await dsn`DELETE FROM galeri WHERE id = ${id}`;
   }
 };
 

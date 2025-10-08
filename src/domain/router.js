@@ -4,8 +4,16 @@ import galeriController from "../controller/galeriController.js";
 import pengumumanController from "../controller/pengumumanController.js";
 import prestasiController from "../controller/prestasiController.js";
 import userController from "../controller/userController.js";
+import multer from "multer";
+import uploadController from "../controller/uploadController.js";
 
 const router = express.Router();
+
+// konfigurasi multer (pakai memori)
+const storage = multer.memoryStorage();
+const upload = multer({ storage });
+
+router.post("/upload", upload.single("foto"), uploadController.upload);
 
 // === USER ===
 router.post("/register", userController.register);
