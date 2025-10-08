@@ -44,16 +44,18 @@ router.put("/prestasi/:id", prestasiController.update);
 router.delete("/prestasi/:id", prestasiController.delete);
 
 
-// CRUD USERS
+// CRUD user
+router.get("/user", userController.getAll);
+router.get("/user/:id", userController.getById);
+router.post("/user", userController.create);
+router.put("/user/:id", userController.update);
+router.delete("/user/:id", userController.delete);
 
-router.get("/users", userController.getAll);
-router.get("/users/:id", userController.getById);
-router.post("/users", userController.create);
-router.put("/users/:id", userController.update);
-router.delete("/users/:id", userController.delete);
-
-// AUTH
+// Auth route
 router.post("/register", userController.register);
 router.post("/login", userController.login);
+router.post("/logout", userController.logout);
+router.get("/me", userController.me);
+
 
 export default router;

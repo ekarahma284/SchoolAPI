@@ -1,31 +1,46 @@
-// import PengumumanRepo from "../repository/pengumumanRepo.js";
-import pengumumanRepo from "../repository/pengumumanRepo.js";
+import pengumumanService from "../service/pengumumanService.js";
 
-const PengumumanController = {
+const pengumumanController = {
   async getAll(req, res) {
-    const data = await pengumumanRepo.getAll();
+    const data = await pengumumanService.getAll();
     res.json(data);
   },
 
   async getById(req, res) {
-    const data = await pengumumanRepo.getById(req.params.id);
-    res.json(data);
+    try {
+      const data = await pengumumanService.getById(req.params.id);
+      res.json(data);
+    } catch (err) {
+      res.status(404).json({ message: err.message });
+    }
   },
 
   async create(req, res) {
-    await pengumumanRepo.create(req.body);
-    res.json({ message: "Pengumuman berhasil ditambahkan" });
+    try {
+      const created = await pengumumanService.create(req.body);
+      res.status(201).json({ message: "Pengumuman berhasil ditambahkan", pengumuman: created });
+    } catch (err) {
+      res.status(400).json({ message: err.message });
+    }
   },
 
   async update(req, res) {
-    await pengumumanRepo.update(req.params.id, req.body);
-    res.json({ message: "Pengumuman berhasil diperbarui" });
+    try {
+      const updated = await pengumumanService.update(req.params.id, req.body);
+      res.json({ message: "Pengumuman berhasil diperbarui", pengumuman: updated });
+    } catch (err) {
+      res.status(400).json({ message: err.message });
+    }
   },
 
   async delete(req, res) {
-    await pengumumanRepo.delete(req.params.id);
-    res.json({ message: "Pengumuman berhasil dihapus" });
-  },
+    try {
+      await pengumumanService.delete(req.params.id);
+      res.json({ message: "Pengumuman berhasil dihapus" });
+    } catch (err) {
+      res.status(400).json({ message: err.message });
+    }
+  }
 };
 
-export default PengumumanController;
+export default pengumumanController;

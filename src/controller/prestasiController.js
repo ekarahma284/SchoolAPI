@@ -1,32 +1,46 @@
-// import PrestasiRepo from "../repository/prestasiRepo.js";
-import prestasiRepo from "../repository/prestasiRepo.js";
+import prestasiService from "../service/prestasiService.js";
 
-
-const PrestasiController = {
+const prestasiController = {
   async getAll(req, res) {
-    const data = await prestasiRepo.getAll();
+    const data = await prestasiService.getAll();
     res.json(data);
   },
 
   async getById(req, res) {
-    const data = await prestasiRepo.getById(req.params.id);
-    res.json(data);
+    try {
+      const data = await prestasiService.getById(req.params.id);
+      res.json(data);
+    } catch (err) {
+      res.status(404).json({ message: err.message });
+    }
   },
 
   async create(req, res) {
-    await prestasiRepo.create(req.body);
-    res.json({ message: "Prestasi berhasil ditambahkan" });
+    try {
+      const created = await prestasiService.create(req.body);
+      res.status(201).json({ message: "Prestasi berhasil ditambahkan", prestasi: created });
+    } catch (err) {
+      res.status(400).json({ message: err.message });
+    }
   },
 
   async update(req, res) {
-    await prestasiRepo.update(req.params.id, req.body);
-    res.json({ message: "Prestasi berhasil diperbarui" });
+    try {
+      const updated = await prestasiService.update(req.params.id, req.body);
+      res.json({ message: "Prestasi berhasil diperbarui", prestasi: updated });
+    } catch (err) {
+      res.status(400).json({ message: err.message });
+    }
   },
 
   async delete(req, res) {
-    await prestasiRepo.delete(req.params.id);
-    res.json({ message: "Prestasi berhasil dihapus" });
-  },
+    try {
+      await prestasiService.delete(req.params.id);
+      res.json({ message: "Prestasi berhasil dihapus" });
+    } catch (err) {
+      res.status(400).json({ message: err.message });
+    }
+  }
 };
 
-export default PrestasiController;
+export default prestasiController;

@@ -1,48 +1,58 @@
-import userRepo from "../repository/userRepo.js";
+import userRepository from "../repository/userRepository.js";
+
+let currentUser = null; // user yang sedang login
 
 const userService = {
   async register(username, password) {
     if (!username || !password) {
       throw new Error("Username dan password wajib diisi");
     }
+    const existing = await userRepository.getUserByUsername(username);
+    if (existing) throw new Error("Username sudah digunakan");
 
-    if (username.length < 3) {
-      throw new Error("Username minimal 3 karakter");
-    }
-
-    if (password.length < 5) {
-      throw new Error("Password minimal 5 karakter");
-    }
-
-    // cek ke repo apakah username sudah dipakai
-    const check = await userRepo.findByUsername(username);
-    if (check) {
-      throw new Error("Username sudah digunakan");
-    }
-
-    await userRepo.create({ username, password });
-    return { message: "Registrasi berhasil" };
+    return await userRepository.createUser(username, password);
   },
 
   async login(username, password) {
-    if (!username || !password) {
-      throw new Error("Username dan password wajib diisi");
+    const user = await userRepository.getUserByUsername(username);
+    if (!user || user.password !== password) {
+      throw new Error("Username atau password salah");
     }
 
-    const user = await userRepo.findByUsername(username);
-    if (!user) {
-      throw new Error("Username tidak ditemukan");
-    }
-
-    if (user.password !== password) {
-      throw new Error("Password salah");
-    }
-
-    return {
-      message: "Login berhasil",
-      user: { id: user.id, username: user.username },
-    };
+    currentUser = { id: user.id, username: user.username };
+    return currentUser;
   },
+
+  async logout() {
+    if (!currentUser) throw new Error("Tidak ada user yang sedang login");
+    currentUser = null;
+    return { message: "Logout berhasil" };
+  },
+
+  getLoggedUser() {
+    if (!currentUser) throw new Error("Belum login");
+    return currentUser;
+  },
+
+  getCurrentUser() {
+    return currentUser;
+  },
+
+  async getAll() {
+    return await userRepository.getAll();
+  },
+
+  async getById(id) {
+    return await userRepository.getById(id);
+  },
+
+  async update(id, username, password) {
+    return await userRepository.update(id, username, password);
+  },
+
+  async delete(id) {
+    return await userRepository.delete(id);
+  }
 };
 
 export default userService;

@@ -6,6 +6,9 @@ import router from "./src/domain/router.js";
 const APP = express();
 const APP_PORT = 5000;
 
+
+global.loggedUser = null;
+
 APP.use(cors());
 APP.use(express.json());
 APP.use("/api", router);
