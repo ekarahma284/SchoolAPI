@@ -1,6 +1,6 @@
-import Prestasi from "../model/prestasiModel.js";
+import Prestasi from "../model/prestasiModel.js"; // Asumsi model ada; jika tidak, hapus dan gunakan plain object
 import PrestasiRepository from "../repository/prestasiRepository.js";
-import userService from "./userService.js";
+import userService from "./userService.js"; // Asumsi ini return global.loggedUser
 
 export default class PrestasiService {
   constructor() {
@@ -22,13 +22,14 @@ export default class PrestasiService {
       throw new Error("Nama dan Judul wajib diisi");
     }
 
-    // Ambil user yang sedang login
+    // Ambil user yang sedang login (via global dari userService)
     const user = await userService.getLoggedUser();
     if (!user || !user.id) {
       throw new Error("User belum login!");
     }
 
-    const prestasi = new Prestasi(
+    // Buat instance model jika ada; jika tidak, gunakan plain object
+    const prestasiData = new Prestasi(
       null,
       data.juara || null,
       data.nama,
@@ -39,32 +40,57 @@ export default class PrestasiService {
       user.id
     );
 
-    return await this.repo.create(prestasi);
+    // Jika model tidak return object plain, convert ke plain
+    const plainData = prestasiData.toJSON ? prestasiData.toJSON() : prestasiData;
+
+    return await this.repo.create(plainData);
   }
 
   async update(id, data) {
-    const cekPrestasi = await this.repo.getById(id);
-    if (!cekPrestasi) {
+    const existing = await this.repo.getById(id);
+    if (!existing) {
       throw new Error("Prestasi tidak ditemukan");
     }
 
+    // Cek auth: hanya author yang boleh update
+    const user = await userService.getLoggedUser();
+    if (!user || existing.author_id !== user.id) {
+      throw new Error("Forbidden");
+    }
+
+    // Update hanya field yang diberikan; fallback ke existing
     const updateData = {
-      juara: data.juara !== undefined ? data.juara : cekPrestasi.juara,
-      nama: data.nama || cekPrestasi.nama,
-      kelas: data.kelas !== undefined ? data.kelas : cekPrestasi.kelas,
-      judul: data.judul || cekPrestasi.judul,
-      deskripsi: data.deskripsi !== undefined ? data.deskripsi : cekPrestasi.deskripsi,
-      foto_url: data.foto_url !== undefined ? data.foto_url : cekPrestasi.foto_url
+      juara: data.juara !== undefined ? data.juara : existing.juara,
+      nama: data.nama !== undefined ? data.nama : existing.nama,
+      kelas: data.kelas !== undefined ? data.kelas : existing.kelas,
+      judul: data.judul !== undefined ? data.judul : existing.judul,
+      deskripsi: data.deskripsi !== undefined ? data.deskripsi : existing.deskripsi,
+      foto_url: data.foto_url !== undefined ? data.foto_url : existing.foto_url
     };
 
-    return await this.repo.update(id, updateData);
+    const updated = await this.repo.update(id, updateData);
+    if (!updated) {
+      throw new Error("Gagal update prestasi");
+    }
+    return updated;
   }
 
   async delete(id) {
-    const cekPrestasi = await this.repo.getById(id);
-    if (!cekPrestasi) {
+    const existing = await this.repo.getById(id);
+    if (!existing) {
       throw new Error("Prestasi tidak ditemukan");
     }
-    await this.repo.delete(id);
+
+    // Cek auth: hanya author yang boleh delete
+    const user = await userService.getLoggedUser();
+    if (!user || existing.author_id !== user.id) {
+      throw new Error("Forbidden");
+    }
+
+    const deleted = await this.repo.delete(id);
+    if (!deleted) {
+      throw new Error("Gagal menghapus prestasi");
+    }
+    return true;
   }
 }

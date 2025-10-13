@@ -1,89 +1,89 @@
-import PrestasiRepository from "../repository/prestasiRepository.js"; // Sesuaikan path jika berbeda
-// import authMiddleware from "../middleware/auth.js"; // Placeholder; ganti jika ada auth
+import PrestasiService from "../service/prestasiService.js"; // Integrasikan service
 
-const repository = new PrestasiRepository();
+const service = new PrestasiService();
 
 export default {
   async getAll(req, res) {
     try {
-      const prestasi = await repository.getAll();
+      const prestasi = await service.getAll();
       res.json(prestasi);
     } catch (error) {
-      res.status(500).json({ error: "Gagal mengambil data prestasi" });
+      console.error("Error getAll prestasi:", error);
+      res.status(500).json({ error: "Gagal mengambil data prestasi", details: error.message });
     }
   },
 
   async getById(req, res) {
     try {
       const { id } = req.params;
-      const prestasi = await repository.getById(id);
-      if (!prestasi) {
-        return res.status(404).json({ error: "Prestasi tidak ditemukan" });
-      }
+      const prestasi = await service.getById(id);
       res.json(prestasi);
     } catch (error) {
-      res.status(500).json({ error: "Gagal mengambil prestasi" });
+      console.error("Error getById prestasi:", error);
+      if (error.message === "Prestasi tidak ditemukan") {
+        return res.status(404).json({ error: error.message });
+      }
+      res.status(500).json({ error: "Gagal mengambil prestasi", details: error.message });
     }
   },
 
   async create(req, res) {
     try {
-      // Asumsi auth: ambil user_id dari token
-      const authorId = req.user?.id; // Dari middleware auth
-      if (!authorId) {
-        return res.status(401).json({ error: "Unauthorized" });
-      }
-
+      // Handle upload jika ada file (foto_url dari req.file)
       const prestasiData = {
         ...req.body,
-        author_id: authorId,
-        foto_url: req.file ? req.file.path : null // Jika upload terintegrasi
+        foto_url: req.file ? req.file.path || req.file.originalname : req.body.foto_url || null
       };
 
-      const newPrestasi = await repository.create(prestasiData);
+      const newPrestasi = await service.create(prestasiData);
       res.status(201).json(newPrestasi);
     } catch (error) {
-      res.status(500).json({ error: "Gagal membuat prestasi" });
+      console.error("Error create prestasi:", error);
+      if (error.message === "User belum login!" || error.message === "Unauthorized") {
+        return res.status(401).json({ error: "Unauthorized: Login dulu!" });
+      }
+      if (error.message.includes("wajib diisi")) {
+        return res.status(400).json({ error: error.message });
+      }
+      res.status(500).json({ error: "Gagal membuat prestasi", details: error.message });
     }
   },
 
   async update(req, res) {
     try {
       const { id } = req.params;
-      const existing = await repository.getById(id);
-      if (!existing) {
-        return res.status(404).json({ error: "Prestasi tidak ditemukan" });
-      }
-
-      // Cek auth: hanya author atau admin
-      if (existing.author_id !== req.user?.id) {
-        return res.status(403).json({ error: "Forbidden" });
-      }
-
-      const updatedPrestasi = await repository.update(id, req.body);
+      const prestasiData = {
+        ...req.body,
+        foto_url: req.file ? req.file.path || req.file.originalname : req.body.foto_url
+      };
+      const updatedPrestasi = await service.update(id, prestasiData);
       res.json(updatedPrestasi);
     } catch (error) {
-      res.status(500).json({ error: "Gagal update prestasi" });
+      console.error("Error update prestasi:", error);
+      if (error.message === "Prestasi tidak ditemukan") {
+        return res.status(404).json({ error: error.message });
+      }
+      if (error.message === "Forbidden") {
+        return res.status(403).json({ error: "Forbidden: Hanya author yang boleh edit!" });
+      }
+      res.status(500).json({ error: "Gagal update prestasi", details: error.message });
     }
   },
 
   async delete(req, res) {
     try {
       const { id } = req.params;
-      const existing = await repository.getById(id);
-      if (!existing) {
-        return res.status(404).json({ error: "Prestasi tidak ditemukan" });
-      }
-
-      // Cek auth
-      if (existing.author_id !== req.user?.id) {
-        return res.status(403).json({ error: "Forbidden" });
-      }
-
-      await repository.delete(id);
-      res.json({ message: "Prestasi dihapus" });
+      await service.delete(id);
+      res.json({ message: "Prestasi berhasil dihapus" });
     } catch (error) {
-      res.status(500).json({ error: "Gagal menghapus prestasi" });
+      console.error("Error delete prestasi:", error);
+      if (error.message === "Prestasi tidak ditemukan") {
+        return res.status(404).json({ error: error.message });
+      }
+      if (error.message === "Forbidden") {
+        return res.status(403).json({ error: "Forbidden: Hanya author yang boleh hapus!" });
+      }
+      res.status(500).json({ error: "Gagal menghapus prestasi", details: error.message });
     }
   }
 };
