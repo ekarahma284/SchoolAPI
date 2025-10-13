@@ -1,4 +1,4 @@
-import PrestasiService from "../services/prestasiService.js";
+import PrestasiService from "../service/prestasiService.js";
 
 const service = new PrestasiService();
 
