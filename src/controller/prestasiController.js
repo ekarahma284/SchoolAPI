@@ -1,4 +1,4 @@
-import PrestasiService from "../service/prestasiService.js"; // Integrasikan service
+import PrestasiService from "../service/prestasiService.js";
 
 const service = new PrestasiService();
 
@@ -29,19 +29,15 @@ export default {
 
   async create(req, res) {
     try {
-      // Handle upload jika ada file (foto_url dari req.file)
       const prestasiData = {
         ...req.body,
-        foto_url: req.file ? req.file.path || req.file.originalname : req.body.foto_url || null
+        foto_url: req.file ? req.file.path || req.file.originalname : req.body.foto_url || null,
       };
 
       const newPrestasi = await service.create(prestasiData);
-      res.status(201).json(newPrestasi);
+      res.status(201).json({ message: "Prestasi berhasil ditambahkan", data: newPrestasi });
     } catch (error) {
       console.error("Error create prestasi:", error);
-      // if (error.message === "User belum login!" || error.message === "Unauthorized") {
-      //   return res.status(401).json({ error: "Unauthorized: Login dulu!" });
-      // }
       if (error.message.includes("wajib diisi")) {
         return res.status(400).json({ error: error.message });
       }
@@ -54,18 +50,15 @@ export default {
       const { id } = req.params;
       const prestasiData = {
         ...req.body,
-        foto_url: req.file ? req.file.path || req.file.originalname : req.body.foto_url
+        foto_url: req.file ? req.file.path || req.file.originalname : req.body.foto_url,
       };
       const updatedPrestasi = await service.update(id, prestasiData);
-      res.json(updatedPrestasi);
+      res.json({ message: "Prestasi berhasil diperbarui", data: updatedPrestasi });
     } catch (error) {
       console.error("Error update prestasi:", error);
       if (error.message === "Prestasi tidak ditemukan") {
         return res.status(404).json({ error: error.message });
       }
-      // if (error.message === "Forbidden") {
-      //   return res.status(403).json({ error: "Forbidden: Hanya author yang boleh edit!" });
-      // }
       res.status(500).json({ error: "Gagal update prestasi", details: error.message });
     }
   },
@@ -80,10 +73,7 @@ export default {
       if (error.message === "Prestasi tidak ditemukan") {
         return res.status(404).json({ error: error.message });
       }
-      // if (error.message === "Forbidden") {
-      //   return res.status(403).json({ error: "Forbidden: Hanya author yang boleh hapus!" });
-      // }
       res.status(500).json({ error: "Gagal menghapus prestasi", details: error.message });
     }
-  }
+  },
 };

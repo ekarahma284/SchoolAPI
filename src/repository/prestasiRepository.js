@@ -25,12 +25,12 @@ export default class PrestasiRepository {
     const result = await dsn`
       INSERT INTO prestasi (juara, nama, kelas, judul, deskripsi, foto_url, author_id)
       VALUES (
-        ${prestasi.juara}, 
-        ${prestasi.nama}, 
-        ${prestasi.kelas}, 
-        ${prestasi.judul}, 
-        ${prestasi.deskripsi}, 
-        ${prestasi.foto_url}, 
+        ${prestasi.juara},
+        ${prestasi.nama},
+        ${prestasi.kelas},
+        ${prestasi.judul},
+        ${prestasi.deskripsi},
+        ${prestasi.foto_url},
         ${prestasi.author_id}
       )
       RETURNING *
@@ -42,12 +42,13 @@ export default class PrestasiRepository {
     const result = await dsn`
       UPDATE prestasi
       SET 
-        juara = ${prestasi.juara}, 
-        nama = ${prestasi.nama}, 
-        kelas = ${prestasi.kelas}, 
-        judul = ${prestasi.judul}, 
-        deskripsi = ${prestasi.deskripsi}, 
-        foto_url = ${prestasi.foto_url}
+        juara = ${prestasi.juara},
+        nama = ${prestasi.nama},
+        kelas = ${prestasi.kelas},
+        judul = ${prestasi.judul},
+        deskripsi = ${prestasi.deskripsi},
+        foto_url = ${prestasi.foto_url},
+        author_id = ${prestasi.author_id}
       WHERE id = ${id}
       RETURNING *
     `;
@@ -56,9 +57,7 @@ export default class PrestasiRepository {
 
   async delete(id) {
     const result = await dsn`
-      DELETE FROM prestasi 
-      WHERE id = ${id}
-      RETURNING *
+      DELETE FROM prestasi WHERE id = ${id} RETURNING *
     `;
     return result.length > 0;
   }
