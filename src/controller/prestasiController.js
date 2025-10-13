@@ -39,9 +39,9 @@ export default {
       res.status(201).json(newPrestasi);
     } catch (error) {
       console.error("Error create prestasi:", error);
-      if (error.message === "User belum login!" || error.message === "Unauthorized") {
-        return res.status(401).json({ error: "Unauthorized: Login dulu!" });
-      }
+      // if (error.message === "User belum login!" || error.message === "Unauthorized") {
+      //   return res.status(401).json({ error: "Unauthorized: Login dulu!" });
+      // }
       if (error.message.includes("wajib diisi")) {
         return res.status(400).json({ error: error.message });
       }
@@ -63,9 +63,9 @@ export default {
       if (error.message === "Prestasi tidak ditemukan") {
         return res.status(404).json({ error: error.message });
       }
-      if (error.message === "Forbidden") {
-        return res.status(403).json({ error: "Forbidden: Hanya author yang boleh edit!" });
-      }
+      // if (error.message === "Forbidden") {
+      //   return res.status(403).json({ error: "Forbidden: Hanya author yang boleh edit!" });
+      // }
       res.status(500).json({ error: "Gagal update prestasi", details: error.message });
     }
   },
@@ -80,9 +80,9 @@ export default {
       if (error.message === "Prestasi tidak ditemukan") {
         return res.status(404).json({ error: error.message });
       }
-      if (error.message === "Forbidden") {
-        return res.status(403).json({ error: "Forbidden: Hanya author yang boleh hapus!" });
-      }
+      // if (error.message === "Forbidden") {
+      //   return res.status(403).json({ error: "Forbidden: Hanya author yang boleh hapus!" });
+      // }
       res.status(500).json({ error: "Gagal menghapus prestasi", details: error.message });
     }
   }

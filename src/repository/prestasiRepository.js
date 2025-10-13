@@ -1,89 +1,65 @@
-import PrestasiRepository from "../repository/prestasiRepository.js"; // Sesuaikan path jika berbeda
-// import authMiddleware from "../middleware/auth.js"; // Placeholder; ganti jika ada auth
+import dsn from "../infra/postgres.js";
 
-const repository = new PrestasiRepository();
-
-export default {
-  async getAll(req, res) {
-    try {
-      const prestasi = await repository.getAll();
-      res.json(prestasi);
-    } catch (error) {
-      res.status(500).json({ error: "Gagal mengambil data prestasi" });
-    }
-  },
-
-  async getById(req, res) {
-    try {
-      const { id } = req.params;
-      const prestasi = await repository.getById(id);
-      if (!prestasi) {
-        return res.status(404).json({ error: "Prestasi tidak ditemukan" });
-      }
-      res.json(prestasi);
-    } catch (error) {
-      res.status(500).json({ error: "Gagal mengambil prestasi" });
-    }
-  },
-
-  async create(req, res) {
-    try {
-      // Asumsi auth: ambil user_id dari token
-      const authorId = req.user?.id; // Dari middleware auth
-      // if (!authorId) {
-      //   return res.status(401).json({ error: "Unauthorized" });
-      // }
-
-      const prestasiData = {
-        ...req.body,
-        author_id: authorId,
-        foto_url: req.file ? req.file.path : null // Jika upload terintegrasi
-      };
-
-      const newPrestasi = await repository.create(prestasiData);
-      res.status(201).json(newPrestasi);
-    } catch (error) {
-      res.status(500).json({ error: "Gagal membuat prestasi" });
-    }
-  },
-
-  async update(req, res) {
-    try {
-      const { id } = req.params;
-      const existing = await repository.getById(id);
-      if (!existing) {
-        return res.status(404).json({ error: "Prestasi tidak ditemukan" });
-      }
-
-      // Cek auth: hanya author atau admin
-      // if (existing.author_id !== req.user?.id) {
-      //   return res.status(403).json({ error: "Forbidden" });
-      // }
-
-      const updatedPrestasi = await repository.update(id, req.body);
-      res.json(updatedPrestasi);
-    } catch (error) {
-      res.status(500).json({ error: "Gagal update prestasi" });
-    }
-  },
-
-  async delete(req, res) {
-    try {
-      const { id } = req.params;
-      const existing = await repository.getById(id);
-      if (!existing) {
-        return res.status(404).json({ error: "Prestasi tidak ditemukan" });
-      }
-
-      // Cek auth
-      // if (existing.author_id !== req.user?.id) {
-      //   return res.status(403).json({ error: "Forbidden" });
-      // }
-
-      await repository.delete(id);
-      res.json({ message: "Prestasi dihapus" });
-    } catch (error) {
-      res.status(500).json({ error: "Gagal menghapus prestasi" });
-    }
+export default class PrestasiRepository {
+  async getAll() {
+    const result = await dsn`
+      SELECT p.*, u.username 
+      FROM prestasi p
+      LEFT JOIN users u ON p.author_id = u.id
+      ORDER BY p.id DESC
+    `;
+    return result;
   }
-};
+
+  async getById(id) {
+    const result = await dsn`
+      SELECT p.*, u.username 
+      FROM prestasi p
+      LEFT JOIN users u ON p.author_id = u.id
+      WHERE p.id = ${id}
+    `;
+    return result[0] || null;
+  }
+
+  async create(prestasi) {
+    const result = await dsn`
+      INSERT INTO prestasi (juara, nama, kelas, judul, deskripsi, foto_url, author_id)
+      VALUES (
+        ${prestasi.juara}, 
+        ${prestasi.nama}, 
+        ${prestasi.kelas}, 
+        ${prestasi.judul}, 
+        ${prestasi.deskripsi}, 
+        ${prestasi.foto_url}, 
+        ${prestasi.author_id}
+      )
+      RETURNING *
+    `;
+    return result[0];
+  }
+
+  async update(id, prestasi) {
+    const result = await dsn`
+      UPDATE prestasi
+      SET 
+        juara = ${prestasi.juara}, 
+        nama = ${prestasi.nama}, 
+        kelas = ${prestasi.kelas}, 
+        judul = ${prestasi.judul}, 
+        deskripsi = ${prestasi.deskripsi}, 
+        foto_url = ${prestasi.foto_url}
+      WHERE id = ${id}
+      RETURNING *
+    `;
+    return result[0] || null;
+  }
+
+  async delete(id) {
+    const result = await dsn`
+      DELETE FROM prestasi 
+      WHERE id = ${id}
+      RETURNING *
+    `;
+    return result.length > 0;
+  }
+}
