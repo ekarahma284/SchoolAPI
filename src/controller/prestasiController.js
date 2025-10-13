@@ -21,6 +21,7 @@ const prestasiController = {
 
   async create(req, res) {
     try {
+      console.log("Body diterima:", req.body); // debug log
       const created = await prestasiService.create(req.body);
       res.status(201).json({
         message: "Prestasi berhasil ditambahkan",

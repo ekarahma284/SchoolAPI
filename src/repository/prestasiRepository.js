@@ -3,7 +3,7 @@ import dsn from "../infra/postgres.js";
 const prestasiRepository = {
   async getAll() {
     const result = await dsn`
-      SELECT p.*, u.username
+      SELECT p.*, u.username 
       FROM prestasi p
       JOIN users u ON p.author_id = u.id
       ORDER BY p.id DESC
@@ -13,7 +13,7 @@ const prestasiRepository = {
 
   async getById(id) {
     const result = await dsn`
-      SELECT p.*, u.username
+      SELECT p.*, u.username 
       FROM prestasi p
       JOIN users u ON p.author_id = u.id
       WHERE p.id = ${id}
@@ -21,7 +21,8 @@ const prestasiRepository = {
     return result[0] || null;
   },
 
-  async create({ juara, nama, kelas, judul, deskripsi, foto_url, author_id }) {
+  async create(prestasi) {
+    const { juara, nama, kelas, judul, deskripsi, foto_url, author_id } = prestasi;
     const result = await dsn`
       INSERT INTO prestasi (juara, nama, kelas, judul, deskripsi, foto_url, author_id)
       VALUES (${juara}, ${nama}, ${kelas}, ${judul}, ${deskripsi}, ${foto_url}, ${author_id})
@@ -30,10 +31,12 @@ const prestasiRepository = {
     return result[0];
   },
 
-  async update(id, { juara, nama, kelas, judul, deskripsi, foto_url }) {
+  async update(id, prestasi) {
+    const { juara, nama, kelas, judul, deskripsi, foto_url } = prestasi;
     const result = await dsn`
       UPDATE prestasi
-      SET juara=${juara}, nama=${nama}, kelas=${kelas}, judul=${judul}, deskripsi=${deskripsi}, foto_url=${foto_url}
+      SET juara=${juara}, nama=${nama}, kelas=${kelas}, judul=${judul},
+          deskripsi=${deskripsi}, foto_url=${foto_url}
       WHERE id=${id}
       RETURNING *
     `;
@@ -41,7 +44,7 @@ const prestasiRepository = {
   },
 
   async delete(id) {
-    await dsn`DELETE FROM prestasi WHERE id = ${id}`;
+    await dsn`DELETE FROM prestasi WHERE id=${id}`;
   }
 };
 
