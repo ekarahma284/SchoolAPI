@@ -52,11 +52,16 @@ router.post("/pengumuman", authMiddleware, pengumumanController.create);
 router.put("/pengumuman/:id", authMiddleware, pengumumanController.update);
 router.delete("/pengumuman/:id", authMiddleware, pengumumanController.delete);
 
-// === PRESTASI ROUTES (GET tanpa auth; lainnya dengan auth + upload untuk POST) ===
-router.get("/prestasi", prestasiController.getAll);
-router.get("/prestasi/:id", prestasiController.getById);
-router.post("/prestasi", authMiddleware, upload.single("foto"), prestasiController.create); // Tambah auth + multer
-router.put("/prestasi/:id", authMiddleware, upload.single("foto"), prestasiController.update); // Opsional upload
-router.delete("/prestasi/:id", authMiddleware, prestasiController.delete);
+import express from "express";
+import PrestasiController from "../controller/prestasiController.js";
+
+// const router = express.Router();
+const controller = new PrestasiController();
+
+router.get("/", controller.getAll.bind(controller));
+router.get("/:id", controller.getById.bind(controller));
+router.post("/", controller.create.bind(controller));
+router.put("/:id", controller.update.bind(controller));
+router.delete("/:id", controller.delete.bind(controller));
 
 export default router;
