@@ -3,7 +3,7 @@ import dsn from "../infra/postgres.js";
 export default class PrestasiRepository {
   async getAll() {
     const result = await dsn`
-      SELECT p.*, u.username 
+      SELECT p.*, u.username
       FROM prestasi p
       LEFT JOIN users u ON p.author_id = u.id
       ORDER BY p.id DESC
@@ -13,7 +13,7 @@ export default class PrestasiRepository {
 
   async getById(id) {
     const result = await dsn`
-      SELECT p.*, u.username 
+      SELECT p.*, u.username
       FROM prestasi p
       LEFT JOIN users u ON p.author_id = u.id
       WHERE p.id = ${id}

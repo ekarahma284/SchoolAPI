@@ -11,9 +11,11 @@ export default class PrestasiService {
   }
 
   async getById(id) {
-    const data = await this.repo.getById(id);
-    if (!data) throw new Error("Prestasi tidak ditemukan");
-    return data;
+    const prestasi = await this.repo.getById(id);
+    if (!prestasi) {
+      throw new Error("Prestasi tidak ditemukan");
+    }
+    return prestasi;
   }
 
   async create(data) {
@@ -21,7 +23,7 @@ export default class PrestasiService {
       throw new Error("Nama dan Judul wajib diisi");
     }
 
-    // 🔥 Hapus auth check - pakai author_id default
+    // Tidak pakai login check
     const prestasiData = new Prestasi(
       null,
       data.juara || null,
@@ -30,12 +32,11 @@ export default class PrestasiService {
       data.judul,
       data.deskripsi || null,
       data.foto_url || null,
-      data.author_id || 1 // ← default 1 biar tidak perlu login
+      data.author_id || 1 // default author_id
     );
 
     const plainData = prestasiData.toJSON ? prestasiData.toJSON() : prestasiData;
-    const result = await this.repo.create(plainData);
-    return result;
+    return await this.repo.create(plainData);
   }
 
   async update(id, data) {
@@ -49,7 +50,7 @@ export default class PrestasiService {
       judul: data.judul ?? existing.judul,
       deskripsi: data.deskripsi ?? existing.deskripsi,
       foto_url: data.foto_url ?? existing.foto_url,
-      author_id: existing.author_id || 1
+      author_id: existing.author_id || 1,
     };
 
     const updated = await this.repo.update(id, updateData);
