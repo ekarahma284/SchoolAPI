@@ -1,5 +1,5 @@
 import PrestasiRepository from "../repository/prestasiRepository.js"; // Sesuaikan path jika berbeda
-import authMiddleware from "../middleware/auth.js"; // Placeholder; ganti jika ada auth
+// import authMiddleware from "../middleware/auth.js"; // Placeholder; ganti jika ada auth
 
 const repository = new PrestasiRepository();
 
