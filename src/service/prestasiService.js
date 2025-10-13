@@ -1,4 +1,4 @@
-import Prestasi from "../models/Prestasi.js";
+import Prestasi from "../model/Prestasi.js";
 import PrestasiRepository from "../repository/prestasiRepository.js";
 
 export default class PrestasiService {
