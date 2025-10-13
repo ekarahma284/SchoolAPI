@@ -10,3 +10,4 @@ export default class Prestasi {
     this.author_id = author_id;
   }
 }
+//
