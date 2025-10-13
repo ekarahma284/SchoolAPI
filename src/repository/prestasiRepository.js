@@ -2,7 +2,6 @@ import dsn from "../infra/postgres.js";
 
 export default class PrestasiRepository {
   async getAll() {
-    // Gunakan syntax postgres.js (bukan .query)
     const result = await dsn`
       SELECT p.*, u.username 
       FROM prestasi p
@@ -52,10 +51,15 @@ export default class PrestasiRepository {
       WHERE id = ${id}
       RETURNING *
     `;
-    return result[0];
+    return result[0] || null;
   }
 
   async delete(id) {
-    await dsn`DELETE FROM prestasi WHERE id = ${id}`;
+    const result = await dsn`
+      DELETE FROM prestasi 
+      WHERE id = ${id}
+      RETURNING *
+    `;
+    return result.length > 0;
   }
 }
