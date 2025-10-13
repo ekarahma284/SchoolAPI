@@ -2,10 +2,10 @@ import express from "express";
 import beritaController from "../controller/beritaController.js";
 import galeriController from "../controller/galeriController.js";
 import pengumumanController from "../controller/pengumumanController.js";
-import prestasiController from "../controller/prestasiController.js";
 import userController from "../controller/userController.js";
 import multer from "multer";
 import uploadController from "../controller/uploadController.js";
+import PrestasiController from "../controller/prestasiController.js";
 
 const router = express.Router();
 
@@ -52,13 +52,11 @@ router.post("/pengumuman", authMiddleware, pengumumanController.create);
 router.put("/pengumuman/:id", authMiddleware, pengumumanController.update);
 router.delete("/pengumuman/:id", authMiddleware, pengumumanController.delete);
 
-const prestasiController = new prestasiController();
-
-// ikat semua method agar this tetap mengarah ke instance
-router.get("/prestasi", prestasiController.getAll.bind(prestasiController));
-router.get("/prestasi/:id", prestasiController.getById.bind(prestasiController));
-router.post("/prestasi", prestasiController.create.bind(prestasiController));
-router.put("/prestasi/:id", prestasiController.update.bind(prestasiController));
-router.delete("/prestasi/:id", prestasiController.delete.bind(prestasiController));
+// === PRESTASI ROUTES ===
+router.get("/prestasi", PrestasiController.getAll);
+router.get("/prestasi/:id", PrestasiController.getById);
+router.post("/prestasi", authMiddleware, PrestasiController.create);
+router.put("/prestasi/:id", authMiddleware, PrestasiController.update);
+router.delete("/prestasi/:id", authMiddleware, PrestasiController.delete);
 
 export default router;

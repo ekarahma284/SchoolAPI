@@ -1,89 +1,77 @@
-import PrestasiService from "../service/prestasiService.js";
+import BeritaService from "../service/beritaService.js";
 
-export default class PrestasiController {
-  constructor() {
-    this.service = new PrestasiService();
-  }
-
-  async getAll(req, res) {
+export default class BeritaController {
+  static async getAll(req, res) {
     try {
-      const prestasi = await this.service.getAll();
-      res.json(prestasi);
+      const berita = await BeritaService.getAll();
+      res.json(berita);
     } catch (error) {
-      console.error("Error getAll prestasi:", error);
-      res.status(500).json({ error: "Gagal mengambil data prestasi" });
+      console.error("Error getAll berita:", error);
+      res.status(500).json({ error: "Gagal mengambil data berita" });
     }
   }
 
-  async getById(req, res) {
+  static async getById(req, res) {
     try {
       const { id } = req.params;
-      const prestasi = await this.service.getById(id);
-      res.json(prestasi);
+      const berita = await BeritaService.getById(id);
+      res.json(berita);
     } catch (error) {
-      console.error("Error getById prestasi:", error);
-      if (error.message === "Prestasi tidak ditemukan") {
+      console.error("Error getById berita:", error);
+      if (error.message === "Berita tidak ditemukan") {
         return res.status(404).json({ error: error.message });
       }
-      res.status(500).json({ error: "Gagal mengambil prestasi" });
+      res.status(500).json({ error: "Gagal mengambil berita" });
     }
   }
 
-  async create(req, res) {
+  static async create(req, res) {
     try {
-      const prestasiData = {
+      const beritaData = {
         ...req.body,
-        foto_url: req.file ? req.file.path : req.body.foto_url || null
+        foto_url: req.file ? req.file.path : req.body.foto_url || null,
+        author_id: req.user?.id || 1
       };
-      const newPrestasi = await this.service.create(prestasiData);
-      res.status(201).json(newPrestasi);
+      const newBerita = await BeritaService.create(beritaData);
+      res.status(201).json(newBerita);
     } catch (error) {
-      console.error("Error create prestasi:", error);
+      console.error("Error create berita:", error);
       if (error.message.includes("wajib diisi")) {
         return res.status(400).json({ error: error.message });
       }
-      if (error.message === "User belum login!") {
-        return res.status(401).json({ error: "Unauthorized: Login dulu!" });
-      }
-      res.status(500).json({ error: "Gagal membuat prestasi" });
+      res.status(500).json({ error: "Gagal membuat berita" });
     }
   }
 
-  async update(req, res) {
+  static async update(req, res) {
     try {
       const { id } = req.params;
-      const prestasiData = {
+      const beritaData = {
         ...req.body,
         foto_url: req.file ? req.file.path : req.body.foto_url
       };
-      const updatedPrestasi = await this.service.update(id, prestasiData);
-      res.json(updatedPrestasi);
+      const updatedBerita = await BeritaService.update(id, beritaData);
+      res.json(updatedBerita);
     } catch (error) {
-      console.error("Error update prestasi:", error);
-      if (error.message === "Prestasi tidak ditemukan") {
+      console.error("Error update berita:", error);
+      if (error.message === "Berita tidak ditemukan") {
         return res.status(404).json({ error: error.message });
       }
-      if (error.message === "Forbidden") {
-        return res.status(403).json({ error: "Forbidden: Hanya author yang boleh edit!" });
-      }
-      res.status(500).json({ error: "Gagal update prestasi" });
+      res.status(500).json({ error: "Gagal update berita" });
     }
   }
 
-  async delete(req, res) {
+  static async delete(req, res) {
     try {
       const { id } = req.params;
-      await this.service.delete(id);
-      res.json({ message: "Prestasi berhasil dihapus" });
+      await BeritaService.delete(id);
+      res.json({ message: "Berita berhasil dihapus" });
     } catch (error) {
-      console.error("Error delete prestasi:", error);
-      if (error.message === "Prestasi tidak ditemukan") {
+      console.error("Error delete berita:", error);
+      if (error.message === "Berita tidak ditemukan") {
         return res.status(404).json({ error: error.message });
       }
-      if (error.message === "Forbidden") {
-        return res.status(403).json({ error: "Forbidden: Hanya author yang boleh hapus!" });
-      }
-      res.status(500).json({ error: "Gagal menghapus prestasi" });
+      res.status(500).json({ error: "Gagal menghapus berita" });
     }
   }
 }

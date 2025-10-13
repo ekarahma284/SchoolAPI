@@ -15,6 +15,9 @@ const userController = {
     try {
       const { username, password } = req.body;
       const user = await userService.login(username, password);
+
+      global.loggedUser = user;
+      
       res.json({ message: "Login berhasil", user });
     } catch (err) {
       res.status(400).json({ error: err.message });
@@ -23,23 +26,20 @@ const userController = {
 
   async logout(req, res) {
     try {
-      const msg = await userService.logout();
-      res.json(msg);
+      global.loggedUser = null;
+      res.json({ message: "Berhasil logout" });
     } catch (err) {
       res.status(400).json({ error: err.message });
     }
   },
 
-  logout(req, res) {
-    global.loggedUser = null;
-    res.json({ message: "Berhasil logout" });
-  },
-
   async me(req, res) {
     try {
-      const user = userService.getCurrentUser();
-      if (!user) return res.status(401).json({ message: "Belum login" });
-      res.json(user);
+      // ✅ Gunakan req.user dari middleware (sudah di-set oleh authMiddleware)
+      if (!req.user) {
+        return res.status(401).json({ message: "Belum login" });
+      }
+      res.json(req.user);
     } catch (err) {
       res.status(400).json({ error: err.message });
     }

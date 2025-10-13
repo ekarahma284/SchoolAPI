@@ -2,28 +2,23 @@ import Prestasi from "../model/prestasiModel.js";
 import PrestasiRepository from "../repository/prestasiRepository.js";
 
 export default class PrestasiService {
-  constructor() {
-    this.repo = new PrestasiRepository();
+  static async getAll() {
+    return await PrestasiRepository.getAll();
   }
 
-  async getAll() {
-    return await this.repo.getAll();
-  }
-
-  async getById(id) {
-    const prestasi = await this.repo.getById(id);
+  static async getById(id) {
+    const prestasi = await PrestasiRepository.getById(id);
     if (!prestasi) {
       throw new Error("Prestasi tidak ditemukan");
     }
     return prestasi;
   }
 
-  async create(data) {
+  static async create(data) {
     if (!data.nama || !data.judul) {
       throw new Error("Nama dan Judul wajib diisi");
     }
 
-    // Tidak pakai login check
     const prestasiData = new Prestasi(
       null,
       data.juara || null,
@@ -32,15 +27,15 @@ export default class PrestasiService {
       data.judul,
       data.deskripsi || null,
       data.foto_url || null,
-      data.author_id || 1 // default author_id
+      data.author_id
     );
 
     const plainData = prestasiData.toJSON ? prestasiData.toJSON() : prestasiData;
-    return await this.repo.create(plainData);
+    return await PrestasiRepository.create(plainData);
   }
 
-  async update(id, data) {
-    const existing = await this.repo.getById(id);
+  static async update(id, data) {
+    const existing = await PrestasiRepository.getById(id);
     if (!existing) throw new Error("Prestasi tidak ditemukan");
 
     const updateData = {
@@ -53,16 +48,16 @@ export default class PrestasiService {
       author_id: existing.author_id || 1,
     };
 
-    const updated = await this.repo.update(id, updateData);
+    const updated = await PrestasiRepository.update(id, updateData);
     if (!updated) throw new Error("Gagal update prestasi");
     return updated;
   }
 
-  async delete(id) {
-    const existing = await this.repo.getById(id);
+  static async delete(id) {
+    const existing = await PrestasiRepository.getById(id);
     if (!existing) throw new Error("Prestasi tidak ditemukan");
 
-    const deleted = await this.repo.delete(id);
+    const deleted = await PrestasiRepository.delete(id);
     if (!deleted) throw new Error("Gagal menghapus prestasi");
     return true;
   }
