@@ -1,65 +1,65 @@
 import express from "express";
-
-// Import semua controller
-import BeritaController from "../controller/beritaController.js";
+import beritaController from "../controller/beritaController.js";
+import galeriController from "../controller/galeriController.js";
+import pengumumanController from "../controller/pengumumanController.js";
+import prestasiController from "../controller/prestasiController.js";
+import userController from "../controller/userController.js";
+import multer from "multer";
+import uploadController from "../controller/uploadController.js";
 import PrestasiController from "../controller/prestasiController.js";
-import PengumumanController from "../controller/pengumumanController.js";
-import GaleriController from "../controller/galeriController.js";
-import UserController from "../controller/userController.js";
 
 const router = express.Router();
 
-// Buat instance dari masing-masing controller
-const beritaController = new BeritaController();
+// Konfigurasi multer (memory storage untuk deployment)
+const storage = multer.memoryStorage();
+const upload = multer({ storage: storage });
+
+// Middleware auth sederhana (cek global.loggedUser dan set ke req.user)
+const authMiddleware = (req, res, next) => {
+  if (!global.loggedUser || !global.loggedUser.id) {
+    return res.status(401).json({ error: "Unauthorized: Login dulu!" });
+  }
+  req.user = global.loggedUser; // Set ke req untuk kompatibilitas
+  next();
+};
+
+// Route upload terpisah
+router.post("/upload", upload.single("foto"), uploadController.upload);
+
+// === USER ROUTES (tidak perlu auth kecuali /me) ===
+router.post("/register", userController.register);
+router.post("/login", userController.login);
+router.post("/logout", userController.logout);
+router.get("/me", authMiddleware, userController.me);
+
+// === BERITA ROUTES (asumsi sama; tambah auth jika perlu) ===
+router.get("/berita", beritaController.getAll);
+router.get("/berita/:id", beritaController.getById);
+router.post("/berita", authMiddleware, beritaController.create); // Contoh: tambah auth
+router.put("/berita/:id", authMiddleware, beritaController.update);
+router.delete("/berita/:id", authMiddleware, beritaController.delete);
+
+// === GALERI ROUTES ===
+router.get("/galeri", galeriController.getAll);
+router.get("/galeri/:id", galeriController.getById);
+router.post("/galeri", authMiddleware, galeriController.create);
+router.put("/galeri/:id", authMiddleware, galeriController.update);
+router.delete("/galeri/:id", authMiddleware, galeriController.delete);
+
+// === PENGUMUMAN ROUTES ===
+router.get("/pengumuman", pengumumanController.getAll);
+router.get("/pengumuman/:id", pengumumanController.getById);
+router.post("/pengumuman", authMiddleware, pengumumanController.create);
+router.put("/pengumuman/:id", authMiddleware, pengumumanController.update);
+router.delete("/pengumuman/:id", authMiddleware, pengumumanController.delete);
+
 const prestasiController = new PrestasiController();
-const pengumumanController = new PengumumanController();
-const galeriController = new GaleriController();
-const userController = new UserController();
 
-//
-// ---------------- USER ----------------
-//
-router.post("/register", userController.register.bind(userController));
-router.post("/login", userController.login.bind(userController));
-router.get("/users", userController.getAll.bind(userController));
-router.get("/users/:id", userController.getById.bind(userController));
-router.put("/users/:id", userController.update.bind(userController));
-router.delete("/users/:id", userController.delete.bind(userController));
-
-//
-// ---------------- BERITA ----------------
-//
-router.get("/berita", beritaController.getAll.bind(beritaController));
-router.get("/berita/:id", beritaController.getById.bind(beritaController));
-router.post("/berita", beritaController.create.bind(beritaController));
-router.put("/berita/:id", beritaController.update.bind(beritaController));
-router.delete("/berita/:id", beritaController.delete.bind(beritaController));
-
-//
-// ---------------- PRESTASI ----------------
-//
+// ikat semua method agar this tetap mengarah ke instance
 router.get("/prestasi", prestasiController.getAll.bind(prestasiController));
 router.get("/prestasi/:id", prestasiController.getById.bind(prestasiController));
 router.post("/prestasi", prestasiController.create.bind(prestasiController));
 router.put("/prestasi/:id", prestasiController.update.bind(prestasiController));
 router.delete("/prestasi/:id", prestasiController.delete.bind(prestasiController));
-
-//
-// ---------------- PENGUMUMAN ----------------
-//
-router.get("/pengumuman", pengumumanController.getAll.bind(pengumumanController));
-router.get("/pengumuman/:id", pengumumanController.getById.bind(pengumumanController));
-router.post("/pengumuman", pengumumanController.create.bind(pengumumanController));
-router.put("/pengumuman/:id", pengumumanController.update.bind(pengumumanController));
-router.delete("/pengumuman/:id", pengumumanController.delete.bind(pengumumanController));
-
-//
-// ---------------- GALERI ----------------
-//
-router.get("/galeri", galeriController.getAll.bind(galeriController));
-router.get("/galeri/:id", galeriController.getById.bind(galeriController));
-router.post("/galeri", galeriController.create.bind(galeriController));
-router.put("/galeri/:id", galeriController.update.bind(galeriController));
-router.delete("/galeri/:id", galeriController.delete.bind(galeriController));
 
 export default router;

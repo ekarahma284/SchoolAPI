@@ -11,7 +11,7 @@ export default class PrestasiController {
       res.json(prestasi);
     } catch (error) {
       console.error("Error getAll prestasi:", error);
-      res.status(500).json({ error: "Gagal mengambil data prestasi", details: error.message });
+      res.status(500).json({ error: "Gagal mengambil data prestasi" });
     }
   }
 
@@ -25,7 +25,7 @@ export default class PrestasiController {
       if (error.message === "Prestasi tidak ditemukan") {
         return res.status(404).json({ error: error.message });
       }
-      res.status(500).json({ error: "Gagal mengambil prestasi", details: error.message });
+      res.status(500).json({ error: "Gagal mengambil prestasi" });
     }
   }
 
@@ -33,17 +33,19 @@ export default class PrestasiController {
     try {
       const prestasiData = {
         ...req.body,
-        foto_url: req.file ? req.file.path || req.file.originalname : req.body.foto_url || null,
+        foto_url: req.file ? req.file.path : req.body.foto_url || null
       };
-
       const newPrestasi = await this.service.create(prestasiData);
-      res.status(201).json({ message: "Prestasi berhasil ditambahkan", data: newPrestasi });
+      res.status(201).json(newPrestasi);
     } catch (error) {
       console.error("Error create prestasi:", error);
       if (error.message.includes("wajib diisi")) {
         return res.status(400).json({ error: error.message });
       }
-      res.status(500).json({ error: "Gagal membuat prestasi", details: error.message });
+      if (error.message === "User belum login!") {
+        return res.status(401).json({ error: "Unauthorized: Login dulu!" });
+      }
+      res.status(500).json({ error: "Gagal membuat prestasi" });
     }
   }
 
@@ -52,16 +54,19 @@ export default class PrestasiController {
       const { id } = req.params;
       const prestasiData = {
         ...req.body,
-        foto_url: req.file ? req.file.path || req.file.originalname : req.body.foto_url,
+        foto_url: req.file ? req.file.path : req.body.foto_url
       };
-      const updated = await this.service.update(id, prestasiData);
-      res.json({ message: "Prestasi berhasil diperbarui", data: updated });
+      const updatedPrestasi = await this.service.update(id, prestasiData);
+      res.json(updatedPrestasi);
     } catch (error) {
       console.error("Error update prestasi:", error);
       if (error.message === "Prestasi tidak ditemukan") {
         return res.status(404).json({ error: error.message });
       }
-      res.status(500).json({ error: "Gagal update prestasi", details: error.message });
+      if (error.message === "Forbidden") {
+        return res.status(403).json({ error: "Forbidden: Hanya author yang boleh edit!" });
+      }
+      res.status(500).json({ error: "Gagal update prestasi" });
     }
   }
 
@@ -75,8 +80,10 @@ export default class PrestasiController {
       if (error.message === "Prestasi tidak ditemukan") {
         return res.status(404).json({ error: error.message });
       }
-      res.status(500).json({ error: "Gagal menghapus prestasi", details: error.message });
+      if (error.message === "Forbidden") {
+        return res.status(403).json({ error: "Forbidden: Hanya author yang boleh hapus!" });
+      }
+      res.status(500).json({ error: "Gagal menghapus prestasi" });
     }
   }
 }
-
