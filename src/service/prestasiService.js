@@ -17,12 +17,11 @@ export default class PrestasiService {
   }
 
   async create(data) {
-    // Validasi wajib
     if (!data.nama || !data.judul) {
       throw new Error("Nama dan Judul wajib diisi");
     }
 
-    // Karena belum pakai login, pakai author_id default 1
+    // 🔥 Hapus auth check - pakai author_id default
     const prestasiData = new Prestasi(
       null,
       data.juara || null,
@@ -31,7 +30,7 @@ export default class PrestasiService {
       data.judul,
       data.deskripsi || null,
       data.foto_url || null,
-      1 // default author_id
+      data.author_id || 1 // ← default 1 biar tidak perlu login
     );
 
     const plainData = prestasiData.toJSON ? prestasiData.toJSON() : prestasiData;
@@ -50,7 +49,7 @@ export default class PrestasiService {
       judul: data.judul ?? existing.judul,
       deskripsi: data.deskripsi ?? existing.deskripsi,
       foto_url: data.foto_url ?? existing.foto_url,
-      author_id: existing.author_id,
+      author_id: existing.author_id || 1
     };
 
     const updated = await this.repo.update(id, updateData);
