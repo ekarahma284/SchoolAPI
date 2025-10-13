@@ -16,7 +16,9 @@ APP.use("/api", router);
 // Cek koneksi
 APP.get('/', async (req, res) => {
     try {
-      const result = await dsn.query('SELECT NOW()')
+      // const result = await dsn.query('SELECT NOW()')
+      const result = await dsn`SELECT NOW()`;
+
       res.json({
         message: '✅ Server berjalan dan konek ke PostgreSQL',
         time: result.rows[0].now

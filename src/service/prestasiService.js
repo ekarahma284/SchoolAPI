@@ -19,6 +19,7 @@ const prestasiService = {
     const user = userService.getLoggedUser();
     data.author_id = user.id;
 
+
     return await prestasiRepository.create(data);
   },
 

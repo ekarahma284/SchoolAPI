@@ -23,7 +23,7 @@ const beritaController = {
 
   async create(req, res) {
     try {
-      const result = await beritaRepository.create(req.body);
+      const result = await beritaService.create(req.body);
       res.status(201).json({ message: "Berita berhasil ditambahkan", berita: result });
     } catch (err) {
       res.status(400).json({ message: err.message });
