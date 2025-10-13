@@ -1,51 +1,67 @@
 import dsn from "../infra/postgres.js";
 
-const prestasiRepository = {
+export default class PrestasiRepository {
   async getAll() {
-    const result = await dsn`
+    const result = await dsn.query(`
       SELECT p.*, u.username 
       FROM prestasi p
       JOIN users u ON p.author_id = u.id
       ORDER BY p.id DESC
-    `;
-    return result;
-  },
+    `);
+    return result.rows;
+  }
 
   async getById(id) {
-    const result = await dsn`
-      SELECT p.*, u.username 
-      FROM prestasi p
-      JOIN users u ON p.author_id = u.id
-      WHERE p.id = ${id}
-    `;
-    return result[0] || null;
-  },
+    const result = await dsn.query(
+      `SELECT p.*, u.username 
+       FROM prestasi p
+       JOIN users u ON p.author_id = u.id
+       WHERE p.id = $1`,
+      [id]
+    );
+    return result.rows[0];
+  }
 
   async create(prestasi) {
-    const { juara, nama, kelas, judul, deskripsi, foto_url, author_id } = prestasi;
-    const result = await dsn`
+    const query = `
       INSERT INTO prestasi (juara, nama, kelas, judul, deskripsi, foto_url, author_id)
-      VALUES (${juara}, ${nama}, ${kelas}, ${judul}, ${deskripsi}, ${foto_url}, ${author_id})
-      RETURNING *
+      VALUES ($1, $2, $3, $4, $5, $6, $7)
+      RETURNING *;
     `;
-    return result[0];
-  },
+    const values = [
+      prestasi.juara,
+      prestasi.nama,
+      prestasi.kelas,
+      prestasi.judul,
+      prestasi.deskripsi,
+      prestasi.foto_url,
+      prestasi.author_id,
+    ];
+    const result = await dsn.query(query, values);
+    return result.rows[0];
+  }
 
   async update(id, prestasi) {
-    const { juara, nama, kelas, judul, deskripsi, foto_url } = prestasi;
-    const result = await dsn`
+    const query = `
       UPDATE prestasi
-      SET juara=${juara}, nama=${nama}, kelas=${kelas}, judul=${judul},
-          deskripsi=${deskripsi}, foto_url=${foto_url}
-      WHERE id=${id}
-      RETURNING *
+      SET juara = $1, nama = $2, kelas = $3, judul = $4, deskripsi = $5, foto_url = $6
+      WHERE id = $7
+      RETURNING *;
     `;
-    return result[0];
-  },
+    const values = [
+      prestasi.juara,
+      prestasi.nama,
+      prestasi.kelas,
+      prestasi.judul,
+      prestasi.deskripsi,
+      prestasi.foto_url,
+      id,
+    ];
+    const result = await dsn.query(query, values);
+    return result.rows[0];
+  }
 
   async delete(id) {
-    await dsn`DELETE FROM prestasi WHERE id=${id}`;
+    await dsn.query("DELETE FROM prestasi WHERE id = $1", [id]);
   }
-};
-
-export default prestasiRepository;
+}
