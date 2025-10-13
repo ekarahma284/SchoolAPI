@@ -22,7 +22,10 @@ const prestasiController = {
   async create(req, res) {
     try {
       const created = await prestasiService.create(req.body);
-      res.status(201).json({ message: "Prestasi berhasil ditambahkan", prestasi: created });
+      res.status(201).json({
+        message: "Prestasi berhasil ditambahkan",
+        prestasi: created,
+      });
     } catch (err) {
       res.status(400).json({ message: err.message });
     }
@@ -31,7 +34,10 @@ const prestasiController = {
   async update(req, res) {
     try {
       const updated = await prestasiService.update(req.params.id, req.body);
-      res.json({ message: "Prestasi berhasil diperbarui", prestasi: updated });
+      res.json({
+        message: "Prestasi berhasil diperbarui",
+        prestasi: updated,
+      });
     } catch (err) {
       res.status(400).json({ message: err.message });
     }

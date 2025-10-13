@@ -13,19 +13,22 @@ const prestasiService = {
   },
 
   async create(data) {
-    if (!data.nama || !data.judul)
-      throw new Error("nama dan judul wajib diisi");
+    // Pastikan body tidak kosong
+    if (!data || !data.nama || !data.judul)
+      throw new Error("Nama dan Judul wajib diisi");
 
-    const user = userService.getLoggedUser();
-    data.author_id = user.id;
+    // Coba ambil user login, kalau belum login pakai default author_id = 1
+    const user = userService.getLoggedUser?.() || { id: 1 };
+    data.author_id = data.author_id || user.id;
 
-
-    return await prestasiRepository.create(data);
+    // Simpan ke repository
+    const result = await prestasiRepository.create(data);
+    return result;
   },
 
   async update(id, data) {
     if (!data.judul && !data.nama && !data.juara)
-      throw new Error("Tidak ada data untuk diupdate");
+      throw new Error("Tidak ada data untuk diperbarui");
     return await prestasiRepository.update(id, data);
   },
 
