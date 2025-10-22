@@ -1,77 +1,77 @@
-import BeritaService from "../service/beritaService.js";
+import PrestasiService from "../service/prestasiService.js";
 
-export default class BeritaController {
+export default class PrestasiController {
   static async getAll(req, res) {
     try {
-      const berita = await BeritaService.getAll();
-      res.json(berita);
+      const prestasi = await PrestasiService.getAll();
+      res.json(prestasi);
     } catch (error) {
-      console.error("Error getAll berita:", error);
-      res.status(500).json({ error: "Gagal mengambil data berita" });
+      console.error("Error getAll prestasi:", error);
+      res.status(500).json({ error: "Gagal mengambil data prestasi" });
     }
   }
 
   static async getById(req, res) {
     try {
       const { id } = req.params;
-      const berita = await BeritaService.getById(id);
-      res.json(berita);
+      const prestasi = await PrestasiService.getById(id);
+      res.json(prestasi);
     } catch (error) {
-      console.error("Error getById berita:", error);
-      if (error.message === "Berita tidak ditemukan") {
+      console.error("Error getById prestasi:", error);
+      if (error.message === "prestasi tidak ditemukan") {
         return res.status(404).json({ error: error.message });
       }
-      res.status(500).json({ error: "Gagal mengambil berita" });
+      res.status(500).json({ error: "Gagal mengambil prestasi" });
     }
   }
 
   static async create(req, res) {
     try {
-      const beritaData = {
+      const prestasiData = {
         ...req.body,
         foto_url: req.file ? req.file.path : req.body.foto_url || null,
         author_id: req.user?.id || 1
       };
-      const newBerita = await BeritaService.create(beritaData);
-      res.status(201).json(newBerita);
+      const newPrestasi = await PrestasiService.create(prestasiData);
+      res.status(201).json(newPrestasi);
     } catch (error) {
-      console.error("Error create berita:", error);
+      console.error("Error create prestasi:", error);
       if (error.message.includes("wajib diisi")) {
         return res.status(400).json({ error: error.message });
       }
-      res.status(500).json({ error: "Gagal membuat berita" });
+      res.status(500).json({ error: "Gagal membuat prestasi" });
     }
   }
 
   static async update(req, res) {
     try {
       const { id } = req.params;
-      const beritaData = {
+      const prestasiData = {
         ...req.body,
         foto_url: req.file ? req.file.path : req.body.foto_url
       };
-      const updatedBerita = await BeritaService.update(id, beritaData);
-      res.json(updatedBerita);
+      const updatedPrestasi = await PrestasiService.update(id, prestasiData);
+      res.json(updatedPrestasi);
     } catch (error) {
-      console.error("Error update berita:", error);
-      if (error.message === "Berita tidak ditemukan") {
+      console.error("Error update prestasi:", error);
+      if (error.message === "prestasi tidak ditemukan") {
         return res.status(404).json({ error: error.message });
       }
-      res.status(500).json({ error: "Gagal update berita" });
+      res.status(500).json({ error: "Gagal update prestasi" });
     }
   }
 
   static async delete(req, res) {
     try {
       const { id } = req.params;
-      await BeritaService.delete(id);
-      res.json({ message: "Berita berhasil dihapus" });
+      await PrestasiService.delete(id);
+      res.json({ message: "Prestasi berhasil dihapus" });
     } catch (error) {
-      console.error("Error delete berita:", error);
-      if (error.message === "Berita tidak ditemukan") {
+      console.error("Error delete prestasi:", error);
+      if (error.message === "prestasi tidak ditemukan") {
         return res.status(404).json({ error: error.message });
       }
-      res.status(500).json({ error: "Gagal menghapus berita" });
+      res.status(500).json({ error: "Gagal menghapus prestasi" });
     }
   }
 }
